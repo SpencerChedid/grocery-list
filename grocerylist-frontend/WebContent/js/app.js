@@ -72,9 +72,19 @@ app.service("GroceryService", function($http){
 		var updatedItem = groceryService.findById(entry.id);
 
 		if (updatedItem) {
-			updatedItem.completed = entry.completed;
-			updatedItem.itemName = entry.itemName;
-			updatedItem.date = entry.date;
+
+			$http.post("http://localhost:8080/grocerylist-backend/rest/groceryItems" + entry.id, entry)
+				.success(function(data) {
+					if (data.status == 1) {
+						updatedItem.completed = entry.completed;
+						updatedItem.itemName = entry.itemName;
+						updatedItem.date = entry.date;	
+					}
+				})
+				.error(function(data, ststus) {
+
+				}) 
+			
 		} else {			
 			$http.post("http://localhost:8080/grocerylist-backend/rest/groceryItems/add", entry)
 			groceryService.groceryItems.push(entry);
@@ -119,6 +129,8 @@ app.controller('HomeController', ['$scope', 'GroceryService', function($scope, G
 // creates a controller that is intented to control the items list 
 app.controller('GroceryListItemController', ['$scope', '$routeParams', '$location', 'GroceryService', function($scope, $routeParams, $location, GroceryService){
 	
+	console.log($routeParams.id);
+
 	if (!$routeParams.id) {
 		$scope.groceryItem = {id: 0, completed: false, itemName: "", date: new Date()};
 	} else {
